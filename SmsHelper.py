@@ -8,7 +8,6 @@ API_KEY = 'a02975e0-b00b-46b1-97e0-f8a16e47a4a5'
 SERVICE_ID = '36ea908b-6b20-4573-9faa-74924b3bcd7f'
 COUNTRY = 'RU'
 
-
 class smsHelper:
 
     def __init__(self):
@@ -23,7 +22,7 @@ class smsHelper:
             r = None
         if r is not None and r['Status'] == 'Success':
             return r['Balance']
-        return 0
+        return None
 
     def getPhoneNumber(self):
         payload = {'key': API_KEY, 'iso': COUNTRY, 'serv': SERVICE_ID}
@@ -47,13 +46,16 @@ class smsHelper:
         except:
             r = None
             self.code = None
+
+        print(r)
+
         if r['Error'] == 'InsufficientBalance':
             print('Insufficient balance, terminating.')
             sys.exit()
         if r is not None and r['Status'] == 'Success':
             self.code = r['SMS']
             self.currentBalance = r['Balance']
-        print(r)
+
         return
 
     def phoneVerification(self):

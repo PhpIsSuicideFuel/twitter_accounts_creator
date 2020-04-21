@@ -94,12 +94,6 @@ class TwitterCreator(SeleniumHelper):
     DESKTOP_PAGE_PHONE = '.PageContainer'
     DESKTOP_PAGE_INI = '#doc'
 
-    def openChrome(self):
-        chromedir = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe  %s'
-        webbrowser.get(chromedir).open('localhost')
-        importlib.reload(webbrowser)
-        print('wat')
-
     def mobileCreateUser(self, row):
         self.loadPage(self.DESKTOP_URL_CREATE)
         self.waitAndWrite(self.DESKTOP_FIELD_SIGN_UP_NAME, row['name'])
@@ -150,11 +144,8 @@ class TwitterCreator(SeleniumHelper):
     def start(self, callbacks, inputFile, fromRow, toRow, driverType, pva):
         self.driver = self.getWebdriver(driverType)
         self.driver.delete_all_cookies()
-        print('hoi')
         self.loadPage(self.DESKTOP_URL_CREATE)
-        print('hoi')
         names = simplejson.loads(open('names.json').read())
-        print('hoi')
         self.waitAndWrite(self.DESKTOP_FIELD_SIGN_UP_NAME,
                           random.choice(names))
         self.selectAndWrite(self.DESKTOP_FIELD_SIGN_UP_PHONE,
@@ -230,7 +221,7 @@ class TwitterCreator(SeleniumHelper):
 
 
 def main(argv):
-    os.system('taskkill /im chrome.exe')
+    os.system('taskkill /F /im chrome.exe')
     os.system(
         'start chrome --remote-debugging-port=9222 --user-data-dir=remote-profile --no-sandbox')
     fromRow = 1
