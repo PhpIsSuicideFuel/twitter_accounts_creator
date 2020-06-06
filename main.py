@@ -1,11 +1,9 @@
 # python accounts.py -i ../../data/twitter-creator.json -d regular -f 1
 # python accounts.py -i ../../data/twitter-creator.json -d proxy -f 1
-
-import os
 import sys
+import os
 import time
 import getopt
-import simplejson
 import webbrowser
 import importlib
 import random
@@ -14,55 +12,12 @@ from subprocess import call
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from SeleniumHelper import SeleniumHelper
+sys.path.append('./constants')
+import javascript_constants
+
 
 
 class TwitterCreator(SeleniumHelper):
-    scripts = [
-        """
-    (() => {
-    Object.defineProperty(navigator, 'webdriver', {
-    get: () => false,
-    });
-    })()
-    """,
-        """
-    (() => {
-    // We can mock this in as much depth as we need for the test.
-    window.navigator.chrome = {
-    runtime: {},
-    // etc.
-    };
-    })()
-    """,
-        """
-    (() => {
-    const originalQuery = window.navigator.permissions.query;
-    return window.navigator.permissions.query = (parameters) => (
-    parameters.name === 'notifications' ?
-        Promise.resolve({ state: Notification.permission }) :
-        originalQuery(parameters)
-    );
-    })()
-    """,
-        """
-    (() => {
-    // Overwrite the `plugins` property to use a custom getter.
-    Object.defineProperty(navigator, 'plugins', {
-    // This just needs to have `length > 0` for the current test,
-    // but we could mock the plugins too if necessary.
-    get: () => [1, 2, 3, 4, 5],
-    });
-    })()
-    """,
-        """
-    (() => {
-    // Overwrite the `plugins` property to use a custom getter.
-    Object.defineProperty(navigator, 'languages', {
-    get: () => ['en-US', 'en'],
-    });
-    })()
-    """
-    ]
 
     MOBILE_URL_CREATE = 'https://mobile.twitter.com/signup?type=email'
     MOBILE_FIELD_SIGN_UP_NAME = '#oauth_signup_client_fullname'
@@ -145,7 +100,6 @@ class TwitterCreator(SeleniumHelper):
         self.driver = self.getWebdriver(driverType)
         self.driver.delete_all_cookies()
         self.loadPage(self.DESKTOP_URL_CREATE)
-        names = simplejson.loads(open('names.json').read())
         self.waitAndWrite(self.DESKTOP_FIELD_SIGN_UP_NAME,
                           random.choice(names))
         self.selectAndWrite(self.DESKTOP_FIELD_SIGN_UP_PHONE,
@@ -192,7 +146,7 @@ class TwitterCreator(SeleniumHelper):
             chrome_options.add_experimental_option(
                 "debuggerAddress", "127.0.0.1:9222")
             drvr = webdriver.Chrome(options=chrome_options)
-            for s in self.scripts:
+            for s in javascript_constants.scripts:
                 drvr.execute_cdp_cmd(
                     "Page.addScriptToEvaluateOnNewDocument", {"source": s})
             return drvr
