@@ -1,4 +1,4 @@
-scripts = [
+SCRIPTS = [
     """
     (() => {
     Object.defineProperty(navigator, 'webdriver', {
