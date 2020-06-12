@@ -1,24 +1,16 @@
-# python accounts.py -i ../../data/twitter-creator.json -d regular -f 1
-# python accounts.py -i ../../data/twitter-creator.json -d proxy -f 1
 import sys
 import os
 import time
-import getopt
-import webbrowser
-import importlib
 import random
 import json
-from SmsHelper import smsHelper
-from subprocess import call
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from SeleniumHelper import SeleniumHelper
 from TwitterHandler import TwitterHandler
 from pva.SmsPvaApi import SmsPvaApi
 from pva.SmsCodesApi import SmsCodesApi
 import constants.javascript_constants as javascript_constants
 
-WEBDRIVER_PATH = os.getcwd() + "\webdriver\chromedriver.exe"
+WEBDRIVER_PATH = os.getcwd() + r"\webdriver\chromedriver.exe"
 
 AVAILABLE_PVA_SERVICES = {
     "SmsPva": SmsPvaApi,
@@ -41,6 +33,10 @@ class TwitterCreator:
             config_data = json.load(config_file)
             for pva_service in config_data["pva_services"]:
                 pva = AVAILABLE_PVA_SERVICES.get(pva_service["name"])
+                if pva is None:
+                    print(
+                        f"Unknown service: \"{pva_service['name']}\" specified in {config_file_name}")
+                    sys.exit()
                 cls.pva_services.append(
                     pva(pva_service["base_url"],
                         pva_service["api_key"],
@@ -49,7 +45,7 @@ class TwitterCreator:
 
     def get_cheapest_service(self):
         return min(self.pva_services,
-                   key=lambda service: service.get_service_price())
+                   key=lambda service: service.service_price)
 
     def start(self):
         self.twitter.create_account('asd', 'asd', None)
@@ -99,10 +95,10 @@ def main(argv):
         'start chrome --remote-debugging-port=9222 --user-data-dir=remote-profile --no-sandbox')
     print("chrome started")
 
-    creator = TwitterCreator()
-    creator.get_cheapest_service()
+    # creator = TwitterCreator()
 
-    creator.start()
+    print(TwitterCreator.pva_services[1].get_balance())
+    # creator.start()
     print('Process ended')
 
 
