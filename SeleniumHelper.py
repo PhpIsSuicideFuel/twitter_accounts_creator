@@ -6,27 +6,28 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-
 class SeleniumHelper:
 
     WAIT = 99999
-    driver = None
 
-    def loadPage(self, page):
+    def __init__(self, web_driver):
+        self.driver = web_driver
+
+    def load_page(self, page):
         try:
             self.driver.get(page)
             return True
         except:
             return False
 
-    def submitForm(self, element):
+    def submit_form(self, element):
         try:
             element.submit()
             return True
         except TimeoutException:
             return False
 
-    def submitFormSelector(self, selector):
+    def submit_form_selector(self, selector):
         try:
             element = self.getElement(selector)
             element.submit()
@@ -34,7 +35,7 @@ class SeleniumHelper:
         except TimeoutException:
             return False
 
-    def waitShowElement(self, selector, wait=99999):
+    def wait_show_element(self, selector, wait=99999):
         try:
             wait = WebDriverWait(self.driver, wait)
             element = wait.until(EC.visibility_of_element_located(
@@ -106,12 +107,12 @@ class SeleniumHelper:
         return fieldObject
 
     def waitAndWrite(self, field, value):
-        fieldObject = self.waitShowElement(field, self.WAIT)
+        fieldObject = self.wait_show_element(field, self.WAIT)
         fieldObject.send_keys(value)
         return fieldObject
 
     def waitAndClick(self, field):
-        fieldObject = self.waitShowElement(field, self.WAIT)
+        fieldObject = self.wait_show_element(field, self.WAIT)
         self.click(fieldObject)
         return fieldObject
 

@@ -12,45 +12,20 @@ from subprocess import call
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from SeleniumHelper import SeleniumHelper
-sys.path.append('./constants')
-import javascript_constants
+from TwitterHandler import TwitterHandler
+import constants.javascript_constants as javascript_constants
 
+WEBDRIVER_PATH = os.getcwd() + "\webdriver\chromedriver.exe"
 
+class TwitterCreator:
 
-class TwitterCreator(SeleniumHelper):
-
-    MOBILE_URL_CREATE = 'https://mobile.twitter.com/signup?type=email'
-    MOBILE_FIELD_SIGN_UP_NAME = '#oauth_signup_client_fullname'
-    MOBILE_FIELD_SIGN_UP_EMAIL = '#oauth_signup_client_phone_number'
-    MOBILE_FIELD_SIGN_UP_PASSWORD = '#password'
-    MOBILE_FIELD_SIGN_UP_USERNAME = '#custom_name'
-    MOBILE_BUTTON_SKIP_PHONE = '.signup-skip input'
-    MOBILE_BUTTON_INTERESTS = 'input[data-testid="Button"]'
-
-    DESKTOP_URL_CREATE = 'https://twitter.com/signup'
-    DESKTOP_URL_SKIP = 'https://twitter.com/account/add_username'
-    DESKTOP_URL_MAIN = 'https://twitter.com'
-    DESKTOP_FIELD_SIGN_UP_NAME = """//input[@name='name']"""
-    DESKTOP_FIELD_SIGN_UP_EMAIL = '#email'
-    DESKTOP_FIELD_SIGN_UP_PASSWORD = '#password'
-    DESKTOP_FIELD_SIGN_UP_USERNAME = '#username'
-    DESKTOP_FIELD_SIGN_UP_PHONE = """//input[@name='phone_number']"""
-    DESKTOP_FIELD_NEXT = """//div[@data-focusable='true' and @tabindex='0']/div/span/span[text()='Next']//ancestor::div[2]"""
-    DESKTOP_FIELD_OK = """//div[@data-focusable='true' and @tabindex='0']/div/span/span[text()='OK']//ancestor::div[2]"""
-    DESKTOP_FIELD_SIGN_UP = """//div[@role='button' and @data-focusable='true' and @tabindex='0']/div/span/span[text()='Sign up']"""
-    DESKTOP_FIELD_SIGN_UP_CODE = """//input[@name='verfication_code']"""
-    DESKTOP_FIELD_SIGN_UP_SUGGESTION = '.suggestions > ul:nth-child(2) > li:nth-child(1) > button:nth-child(1)'
-    DESKTOP_FIELD_LOGOUT = '#signout-form'
-    DESKTOP_BUTTON_SKIP_PHONE = '.signup-skip input'
-    DESKTOP_BUTTON_CALL_ME = 'input[name="call_me"]'
-    DESKTOP_BUTTON_INTERESTS = 'input[data-testid="Button"]'
-
-    DESKTOP_PAGE_CONTAINER = '#page-container'
-    DESKTOP_PAGE_PHONE = '.PageContainer'
-    DESKTOP_PAGE_INI = '#doc'
+    def __init__(self):
+        browser = self.get_web_driver()
+        browser.delete_all_cookies()
+        self.twitter = TwitterHandler(browser)
 
     def mobileCreateUser(self, row):
-        self.loadPage(self.DESKTOP_URL_CREATE)
+        self.browser.loadPage(self.DESKTOP_URL_CREATE)
         self.waitAndWrite(self.DESKTOP_FIELD_SIGN_UP_NAME, row['name'])
         self.submitForm(self.selectAndWrite(
             self.DESKTOP_FIELD_SIGN_UP_EMAIL, row['email']))
@@ -97,20 +72,7 @@ class TwitterCreator(SeleniumHelper):
         self.waitShowElement(self.DESKTOP_PAGE_INI)
 
     def start(self, callbacks, inputFile, fromRow, toRow, driverType, pva):
-        self.driver = self.getWebdriver(driverType)
-        self.driver.delete_all_cookies()
-        self.loadPage(self.DESKTOP_URL_CREATE)
-        self.waitAndWrite(self.DESKTOP_FIELD_SIGN_UP_NAME,
-                          random.choice(names))
-        self.selectAndWrite(self.DESKTOP_FIELD_SIGN_UP_PHONE,
-                            pva.getPhoneNumber())
-        self.waitAndClick(self.DESKTOP_FIELD_NEXT)
-        self.waitAndClick(self.DESKTOP_FIELD_NEXT)
-        self.waitAndClick(self.DESKTOP_FIELD_SIGN_UP)
-        self.waitAndClick(self.DESKTOP_FIELD_OK)
-        self.selectAndWrite(self.DESKTOP_FIELD_SIGN_UP_CODE,
-                            pva.phoneVerification())
-        self.waitAndClick(self.DESKTOP_FIELD_NEXT)
+        self.twitter.create_account('asd', 'asd', None)
         print('hoi')
         # try:
         #     rows = simplejson.loads(open(inputFile).read())
@@ -138,18 +100,17 @@ class TwitterCreator(SeleniumHelper):
         # else:
         #     print('Data could not be extracted')
 
-    def getWebdriver(self, driverType):
+    def get_web_driver(self, driverType="proxy"):
         if driverType == 'proxy':
             chrome_options = Options()
-
             # Note the port numbers should match.
             chrome_options.add_experimental_option(
                 "debuggerAddress", "127.0.0.1:9222")
-            drvr = webdriver.Chrome(options=chrome_options)
-            for s in javascript_constants.scripts:
-                drvr.execute_cdp_cmd(
-                    "Page.addScriptToEvaluateOnNewDocument", {"source": s})
-            return drvr
+            driver = webdriver.Chrome(WEBDRIVER_PATH, options=chrome_options)
+            for script in javascript_constants.SCRIPTS:
+                driver.execute_cdp_cmd(
+                    "Page.addScriptToEvaluateOnNewDocument", {"source": script})
+            return driver
             # profile = webdriver.FirefoxProfile()
             # profile.set_preference("network.proxy.type", 1)
             # profile.set_preference("network.proxy.socks", "127.0.0.1")
@@ -175,6 +136,7 @@ class TwitterCreator(SeleniumHelper):
 
 
 def main(argv):
+    print(WEBDRIVER_PATH)
     os.system('taskkill /F /im chrome.exe')
     os.system(
         'start chrome --remote-debugging-port=9222 --user-data-dir=remote-profile --no-sandbox')
@@ -204,4 +166,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main(None)
