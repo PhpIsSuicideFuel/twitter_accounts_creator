@@ -1,3 +1,4 @@
 chromedriver.exe
 remote-profile
 __pycache__
+config.json
