@@ -1,4 +1,3 @@
-import requests
 from pva.PvaApi import PvaApi
 
 
@@ -12,12 +11,8 @@ class SmsPvaApi(PvaApi):
     def get_balance(self) -> float:
         payload = {'metod': "get_balance",
                    'service': self.service_id, 'apikey': self.api_key}
-        try:
-            response = requests.get(self.base_url,
-                                    params=payload).json()
-        except:
-            print("request exception")
-            response = None
+
+        response = self.send_request(self.base_url, payload)
 
         if response["response"] == "1":
             return float(response["balance"])
@@ -26,9 +21,18 @@ class SmsPvaApi(PvaApi):
         return None
 
     def get_service_price(self) -> float:
-        return 5
+        payload = {'metod': "get_service_price",
+                   'country': self.country, 'service': self.service_id, 'apikey': self.api_key}
 
-    def get_phone_number(self) -> str:
+        response = self.send_request(self.base_url, payload)
+
+        if response["response"] == "1":
+            return float(response["price"])
+        else:
+            self.handle_error(response)
+        return None
+
+    def request_phone_number(self) -> str:
         raise NotImplementedError()
 
     def get_sms_message(self, number: str) -> str:

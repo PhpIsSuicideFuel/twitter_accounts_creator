@@ -1,16 +1,18 @@
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+
 class SeleniumHelper:
 
     WAIT = 99999
 
-    def __init__(self, web_driver):
+    def __init__(self, web_driver: WebDriver):
         self.driver = web_driver
 
     def load_page(self, page):

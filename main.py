@@ -5,12 +5,13 @@ import random
 import json
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import WebDriverException
 from TwitterHandler import TwitterHandler
 from pva.SmsPvaApi import SmsPvaApi
 from pva.SmsCodesApi import SmsCodesApi
 import constants.javascript_constants as javascript_constants
 
-WEBDRIVER_PATH = os.getcwd() + r"\webdriver\chromedriver.exe"
+WEBDRIVER_PATH = os.getcwd() + "\\webdriver\\chromedriver.exe"
 
 AVAILABLE_PVA_SERVICES = {
     "SmsPva": SmsPvaApi,
@@ -31,7 +32,7 @@ class TwitterCreator:
     def read_configuration(cls, config_file_name="config.json"):
         with open(config_file_name) as config_file:
             config_data = json.load(config_file)
-            for pva_service in config_data["pva_services"]:
+            for pva_service in config_data.get("pva_services"):
                 pva = AVAILABLE_PVA_SERVICES.get(pva_service["name"])
                 if pva is None:
                     print(
@@ -42,6 +43,9 @@ class TwitterCreator:
                         pva_service["api_key"],
                         pva_service["service_id"],
                         pva_service["country"]))
+            if "webdriver_path" in config_data:
+                global WEBDRIVER_PATH
+                WEBDRIVER_PATH = os.getcwd() + config_data.get("webdriver_path")
 
     def get_cheapest_service(self):
         return min(self.pva_services,
@@ -81,7 +85,11 @@ class TwitterCreator:
         # Note the port numbers should match.
         chrome_options.add_experimental_option(
             "debuggerAddress", "127.0.0.1:9222")
-        driver = webdriver.Chrome(WEBDRIVER_PATH, options=chrome_options)
+        try:
+            driver = webdriver.Chrome(WEBDRIVER_PATH, options=chrome_options)
+        except WebDriverException as e:
+            raise SystemExit(e)
+
         for script in javascript_constants.SCRIPTS:
             driver.execute_cdp_cmd(
                 "Page.addScriptToEvaluateOnNewDocument", {"source": script})
@@ -90,14 +98,15 @@ class TwitterCreator:
 
 def main(argv):
     TwitterCreator.read_configuration()
-    os.system('taskkill /F /im chrome.exe')
-    os.system(
-        'start chrome --remote-debugging-port=9222 --user-data-dir=remote-profile --no-sandbox')
+    # os.system('taskkill /F /im chrome.exe')
+    # os.system(
+    #     'start chrome --remote-debugging-port=9222 --user-data-dir=remote-profile --no-sandbox')
     print("chrome started")
 
     # creator = TwitterCreator()
 
-    print(TwitterCreator.pva_services[1].get_balance())
+    print(TwitterCreator.pva_services[1].get_service_price())
+
     # creator.start()
     print('Process ended')
 

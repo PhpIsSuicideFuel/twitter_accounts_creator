@@ -1,10 +1,12 @@
 import constants.dom_constants as dom_constants
 from SeleniumHelper import SeleniumHelper
+from pva.PvaApi import PvaApi
+from typing import NewType
 
 
 class TwitterHandler(SeleniumHelper):
 
-    def __init__(self, driver, pva_api):
+    def __init__(self, driver, pva_api: PvaApi):
         super().__init__(driver)
         self.pva = pva_api
 
@@ -13,7 +15,7 @@ class TwitterHandler(SeleniumHelper):
         self.waitAndWrite(dom_constants.DESKTOP_FIELD_SIGN_UP_NAME,
                           name)
         self.selectAndWrite(dom_constants.DESKTOP_FIELD_SIGN_UP_PHONE,
-                            self.pva.print())  # get phone number
+                            self.pva.request_phone_number())  # get phone number
         self.waitAndClick(dom_constants.DESKTOP_FIELD_NEXT)
         self.waitAndClick(dom_constants.DESKTOP_FIELD_NEXT)
         self.waitAndClick(dom_constants.DESKTOP_FIELD_SIGN_UP)
