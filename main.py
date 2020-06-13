@@ -3,19 +3,20 @@ import os
 import time
 import random
 import json
+import importlib
+from sys import path
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
 from TwitterHandler import TwitterHandler
 from pva.SmsPvaApi import SmsPvaApi
 from pva.SmsCodesApi import SmsCodesApi
+from pva.PvaApi import PvaApi
 import constants.javascript_constants as javascript_constants
 
 WEBDRIVER_PATH = os.getcwd() + "\\webdriver\\chromedriver.exe"
 
 AVAILABLE_PVA_SERVICES = {
-    "SmsPva": SmsPvaApi,
-    "SmsCodes": SmsCodesApi
 }
 
 
@@ -96,14 +97,39 @@ class TwitterCreator:
         return driver
 
 
+def load_pva_modules():
+    module_path = os.getcwd() + "\\pva"
+    path.append(module_path)
+    for module_name in os.listdir(module_path):
+        if module_name != "PvaApi.py" and module_name.endswith(".py"):
+            module_name = module_name[:-3]
+
+            try:
+                module = importlib.import_module(module_name)
+            except ImportError:
+                print("Couldn't import", module_name)
+                continue
+
+            pva_class = getattr(module, module_name)
+            if isinstance(pva_class, type) and issubclass(pva_class, PvaApi):
+                print("instance")
+                global AVAILABLE_PVA_SERVICES
+                AVAILABLE_PVA_SERVICES.update({module_name[:-3]: pva_class})
+            else:
+                print(f"Pva module {module_name} has to derive from PvaApi")
+
+
 def main(argv):
+    load_pva_modules()
+    print(AVAILABLE_PVA_SERVICES)
     TwitterCreator.read_configuration()
     # os.system('taskkill /F /im chrome.exe')
     # os.system(
     #     'start chrome --remote-debugging-port=9222 --user-data-dir=remote-profile --no-sandbox')
-    print("chrome started")
+    # print("chrome started")
 
     # creator = TwitterCreator()
+    # creator.start()
 
     print(TwitterCreator.pva_services[1].get_service_price())
 

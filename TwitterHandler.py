@@ -1,7 +1,6 @@
 import constants.dom_constants as dom_constants
 from SeleniumHelper import SeleniumHelper
 from pva.PvaApi import PvaApi
-from typing import NewType
 
 
 class TwitterHandler(SeleniumHelper):

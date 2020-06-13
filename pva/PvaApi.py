@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import re
 import requests
 from datetime import datetime
@@ -10,8 +11,11 @@ class PhoneNumber:
         self.security_id = security_id
         self.creation_time = datetime.now()
 
+    def is_expired(self):
+        raise NotImplementedError
 
-class PvaApi:
+
+class PvaApi(ABC):
 
     def __init__(self, base_url, api_key, service_id, country):
         self.base_url = base_url
@@ -20,27 +24,33 @@ class PvaApi:
         self.country = country
         self.numbers = []
 
+    @abstractmethod
     def get_balance(self) -> float:
         # returns current balance
         raise NotImplementedError
 
+    @abstractmethod
     def get_service_price(self) -> float:
         # returns service price
         raise NotImplementedError
 
+    @abstractmethod
     def request_phone_number(self) -> str:
         # returns a new phone number
         raise NotImplementedError
 
+    @abstractmethod
     def get_sms_message(self, number: str) -> str:
         # fetches the latest message from the specified number
         raise NotImplementedError
 
+    @abstractmethod
     def handle_error(self, response: dict):
         # handle errors if they occur
         raise NotImplementedError
 
-    def send_request(self, url: str, payload: dict) -> dict:
+    @staticmethod
+    def send_request(url: str, payload: dict) -> dict:
         try:
             response = requests.get(url,
                                     params=payload).json()
@@ -49,20 +59,20 @@ class PvaApi:
 
         return response
 
+    @staticmethod
+    def get_code_from_message(message: str) -> str:
+        try:
+            code = re.search(r'(^\d+)', message).group(1)
+        except AttributeError:
+            print(f"failed to extract code from: {message}")
+        return code
+
     def add_number(self, number: str, security_id: str):
         self.numbers.append(PhoneNumber(number, security_id))
 
     # returns a PhoneNumber object that matches the provided phone number
     def get_stored_number(self, number: str) -> PhoneNumber:
         return next((num for num in self.numbers if num.number == number), None)
-
-    # extracts the code from message
-    def get_code_from_message(self, message: str) -> str:
-        try:
-            code = re.search(r'(^\d+)', message).group(1)
-        except AttributeError:
-            print(f"failed to extract code from: {message}")
-        return code
 
     def print(self):
         return f"{self.base_url} | {self.api_key}"
