@@ -1,16 +1,14 @@
 import sys
 import os
-import time
 import random
 import json
 import importlib
+import time
 from sys import path
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
 from TwitterHandler import TwitterHandler
-from pva.SmsPvaApi import SmsPvaApi
-from pva.SmsCodesApi import SmsCodesApi
 from pva.PvaApi import PvaApi
 import constants.javascript_constants as javascript_constants
 
@@ -53,7 +51,8 @@ class TwitterCreator:
                    key=lambda service: service.service_price)
 
     def start(self):
-        self.twitter.create_account('asd', 'asd', None)
+        account = self.twitter.create_account()
+        print(account)
         print('hoi')
         # try:
         #     rows = simplejson.loads(open(inputFile).read())
@@ -112,9 +111,8 @@ def load_pva_modules():
 
             pva_class = getattr(module, module_name)
             if isinstance(pva_class, type) and issubclass(pva_class, PvaApi):
-                print("instance")
                 global AVAILABLE_PVA_SERVICES
-                AVAILABLE_PVA_SERVICES.update({module_name[:-3]: pva_class})
+                AVAILABLE_PVA_SERVICES.update({module_name: pva_class})
             else:
                 print(f"Pva module {module_name} has to derive from PvaApi")
 
@@ -131,7 +129,8 @@ def main(argv):
     # creator = TwitterCreator()
     # creator.start()
 
-    print(TwitterCreator.pva_services[1].get_service_price())
+    for i in range(100):
+        print(i, TwitterCreator.pva_services[1].get_service_price())
 
     # creator.start()
     print('Process ended')

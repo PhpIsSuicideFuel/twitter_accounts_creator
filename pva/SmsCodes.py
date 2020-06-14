@@ -1,9 +1,9 @@
-import requests
+import time
 from pva.PvaApi import PvaApi
 
 
 # for communication with https://www.smscodes.io/ service
-class SmsCodesApi(PvaApi):
+class SmsCodes(PvaApi):
 
     def __init__(self, base_url, api_key, service_id, country):
         super().__init__(base_url, api_key, service_id, country)
@@ -48,20 +48,30 @@ class SmsCodesApi(PvaApi):
             self.handle_error(response)
         return None
 
+    # attempts to fetch the code from provided number, returns None only if the number expires or an error occurs
     def get_sms_message(self, number: str) -> str:
+        stored_number = self.get_stored_number(number)
+
         payload = {'key': self.api_key,
-                   'sid': self.get_stored_number(number).security_id, 'number': number}
+                   'sid': stored_number.security_id, 'number': number}
 
-        response = self.send_request(
-            self.base_url + "GetServiceNumber", payload)
+        while not stored_number.is_expired():
+            response = self.send_request(
+                self.base_url + "GetServiceNumber", payload)
+            if response["Status"] == "Success":
+                if response["SMS"] == "Message not received yet":
+                    continue
+                else:
+                    self.del_stored_number(number)
+                    return self.get_code_from_message(response["SMS"])
+            else:
+                self.handle_error(response)
+                break
 
-        if response["Status"] == "Success":
-            del self.numbers[number]
-            return self.get_code_from_message(response["SMS"])
-        else:
-            self.handle_error(response)
-        return None
+        self.del_stored_number(number)
 
-    def handle_error(self, response):  # sms codes didn't document their error codes
+        return None  # number expires before message was received
+
+    def handle_error(self, response):  # smscodes.io didn't document their error codes
         print("error code returned")
         print(response)
