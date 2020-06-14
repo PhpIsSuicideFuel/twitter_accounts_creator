@@ -1,7 +1,10 @@
 import secrets
+import random
+import json
 import string
 
 symbols = string.ascii_letters + string.digits
+names = json.loads(open("names.json").read())
 
 
 def generate_password():
@@ -9,4 +12,4 @@ def generate_password():
 
 
 def generate_username():
-    raise NotImplementedError
+    return random.choice(names) + str(random.randint(0, 100))

@@ -8,6 +8,7 @@ class SmsCodes(PvaApi):
     def __init__(self, base_url, api_key, service_id, country):
         super().__init__(base_url, api_key, service_id, country)
         self.service_price = self.get_service_price()
+        self.balance = self.get_balance()
 
     def get_balance(self) -> float:
         payload = {'key': self.api_key}
@@ -54,10 +55,12 @@ class SmsCodes(PvaApi):
 
         payload = {'key': self.api_key,
                    'sid': stored_number.security_id, 'number': number}
+        print(payload)
 
         while not stored_number.is_expired():
             response = self.send_request(
-                self.base_url + "GetServiceNumber", payload)
+                self.base_url + "GetSMSCode", payload)
+            print(response)
             if response["Status"] == "Success":
                 if response["SMS"] == "Message not received yet":
                     continue

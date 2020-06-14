@@ -47,11 +47,14 @@ class TwitterCreator:
                 WEBDRIVER_PATH = os.getcwd() + config_data.get("webdriver_path")
 
     def get_cheapest_service(self):
-        return min(self.pva_services,
+        pva_services_with_balance = [
+            service for service in self.pva_services if service.balance > service.service_price]
+        return min(pva_services_with_balance,
                    key=lambda service: service.service_price)
 
     def start(self):
         account = self.twitter.create_account()
+        # TODO clean user data after account creation
         print(account)
         print('hoi')
         # try:
@@ -121,16 +124,16 @@ def main(argv):
     load_pva_modules()
     print(AVAILABLE_PVA_SERVICES)
     TwitterCreator.read_configuration()
-    # os.system('taskkill /F /im chrome.exe')
-    # os.system(
-    #     'start chrome --remote-debugging-port=9222 --user-data-dir=remote-profile --no-sandbox')
-    # print("chrome started")
+    os.system('taskkill /F /im chrome.exe')
+    os.system(
+        'start chrome --remote-debugging-port=9222 --user-data-dir=remote-profile --no-sandbox')
+    print("chrome started")
 
-    # creator = TwitterCreator()
+    creator = TwitterCreator()
+
     # creator.start()
-
-    for i in range(100):
-        print(i, TwitterCreator.pva_services[1].get_service_price())
+    # TwitterCreator.pva_services[0].add_number()
+    # print(TwitterCreator.pva_services[0].g())
 
     # creator.start()
     print('Process ended')

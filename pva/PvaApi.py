@@ -19,7 +19,7 @@ class PhoneNumber:
 
 class PvaApi(ABC):
 
-    def __init__(self, base_url, api_key, service_id, country, max_requests_minute=20):
+    def __init__(self, base_url, api_key, service_id, country, max_requests_minute=30):
         self.base_url = base_url
         self.api_key = api_key
         self.service_id = service_id
@@ -62,7 +62,7 @@ class PvaApi(ABC):
             print(f"failed to extract code from: {message}")
         return code
 
-    # sends a http request to the provided url and with specified parameters, returns a response dictionary
+    # sends a http get request to the provided url and with specified parameters, returns a response dictionary
     def send_request(self, url: str, payload: dict) -> dict:
         if time.time() - self.last_request_time > 60 / self.max_requests_minute:
             self.last_request_time = time.time()
@@ -72,6 +72,8 @@ class PvaApi(ABC):
             except requests.exceptions.RequestException as e:
                 raise SystemExit(e)
         else:
+            print("sleeping for: ", (60 / self.max_requests_minute) -
+                  (time.time() - self.last_request_time))
             time.sleep((60 / self.max_requests_minute) -
                        (time.time() - self.last_request_time))
             return self.send_request(url, payload)
