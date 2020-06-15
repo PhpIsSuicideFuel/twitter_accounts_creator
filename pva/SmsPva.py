@@ -8,7 +8,7 @@ class SmsPva(PvaApi):
     def __init__(self, base_url, api_key, service_id, country):
         super().__init__(base_url, api_key, service_id, country)
         self.service_price = self.get_service_price()
-        self.balance = self.get_balance()
+        self.get_balance()
 
     def get_balance(self) -> float:
         payload = {'metod': "get_balance",
@@ -17,6 +17,7 @@ class SmsPva(PvaApi):
         response = self.send_request(self.base_url, payload)
 
         if response["response"] == "1":
+            self.balance = float(response["balance"])
             return float(response["balance"])
         else:
             self.handle_error(response)

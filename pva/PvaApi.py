@@ -75,7 +75,7 @@ class PvaApi(ABC):
             print("sleeping for: ", (60 / self.max_requests_minute) -
                   (time.time() - self.last_request_time))
             time.sleep((60 / self.max_requests_minute) -
-                       (time.time() - self.last_request_time))
+                       (time.time() - self.last_request_time))  # ensures that you're not exceeding the max_requests_minute so you won't get banned
             return self.send_request(url, payload)
         return response
 

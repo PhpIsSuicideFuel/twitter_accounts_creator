@@ -8,7 +8,7 @@ class SmsCodes(PvaApi):
     def __init__(self, base_url, api_key, service_id, country):
         super().__init__(base_url, api_key, service_id, country)
         self.service_price = self.get_service_price()
-        self.balance = self.get_balance()
+        self.get_balance()
 
     def get_balance(self) -> float:
         payload = {'key': self.api_key}
@@ -16,6 +16,7 @@ class SmsCodes(PvaApi):
         response = self.send_request(self.base_url + "GetBalance", payload)
 
         if response["Status"] == "Success":
+            self.balance = float(response["Balance"]) / 100
             return float(response["Balance"]) / 100
         else:
             self.handle_error(response)

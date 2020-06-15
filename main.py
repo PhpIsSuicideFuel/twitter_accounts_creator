@@ -131,7 +131,7 @@ def main(argv):
 
     creator = TwitterCreator()
 
-    # creator.start()
+    creator.start()
     # TwitterCreator.pva_services[0].add_number()
     # print(TwitterCreator.pva_services[0].g())
 

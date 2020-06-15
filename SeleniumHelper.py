@@ -91,34 +91,33 @@ class SeleniumHelper:
             return element.get_attribute(attribute)
         return None
 
-    def getElementAttribute(self, selector, attribute):
-        element = self.getElement(selector)
+    def get_element_attribute(self, element, attribute):
         if element:
             return element.get_attribute(attribute)
         return None
 
-    def getParentNode(self, node):
+    def get_parent_node(self, node):
         return node.find_element_by_xpath('..')
 
-    def getChildNodes(self, node):
+    def get_child_nodes(self, node):
         return node.find_elements_by_xpath('./*')
 
-    def selectAndWrite(self, field, value):
+    def select_and_write(self, field, value):
         fieldObject = self.getElement(field)
         fieldObject.send_keys(value)
         return fieldObject
 
-    def waitAndWrite(self, field, value):
+    def wait_and_write(self, field, value):
         fieldObject = self.wait_show_element(field, self.WAIT)
         fieldObject.send_keys(value)
         return fieldObject
 
-    def waitAndClick(self, field):
+    def wait_and_click(self, field):
         fieldObject = self.wait_show_element(field, self.WAIT)
         self.click(fieldObject)
         return fieldObject
 
-    def clickSelector(self, selector):
+    def click_selector(self, selector):
         element = self.getElement(selector)
         actions = webdriver.ActionChains(self.driver)
         actions.move_to_element(element)
@@ -131,17 +130,17 @@ class SeleniumHelper:
         actions.click(element)
         actions.perform()
 
-    def moveToElement(self, element):
+    def move_to_element(self, element):
         self.driver.execute_script(
             "return arguments[0].scrollIntoView();", element)
         actions = webdriver.ActionChains(self.driver)
         actions.move_to_element(element)
         actions.perform()
 
-    def saveScreenshot(self, path="screenshot.png"):
+    def save_screenshot(self, path="screenshot.png"):
         self.driver.save_screenshot(path)
 
-    def getBetween(self, text, strInit, strEnd):
+    def get_between(self, text, strInit, strEnd):
         exit = None
         arr1 = text.split(strInit)
         if len(arr1) > 1:
@@ -149,7 +148,7 @@ class SeleniumHelper:
             exit = arr2[0]
         return exit
 
-    def getCharsFrom(self, text, strInit, count):
+    def get_chars_from(self, text, strInit, count):
         exit = None
         arr1 = text.split(strInit)
         if len(arr1) > 1:
@@ -158,4 +157,4 @@ class SeleniumHelper:
         return exit
 
     def close(self):
-        self.driver.quit()
+        self.driver.close()
