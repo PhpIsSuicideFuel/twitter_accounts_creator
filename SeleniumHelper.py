@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import sys
 
 
 class SeleniumHelper:
@@ -31,7 +32,7 @@ class SeleniumHelper:
 
     def submit_form_selector(self, selector):
         try:
-            element = self.getElement(selector)
+            element = self.get_element(selector)
             element.submit()
             return True
         except TimeoutException:
@@ -46,7 +47,42 @@ class SeleniumHelper:
         except:
             return None
 
-    def waitHideElement(self, selector, wait):
+    def wait_show_shadow_element(self, tag_name, wait=99999):
+        shadow_parent = self.wait_show_element("//" + tag_name)
+        print(f"shadow parent: {shadow_parent.tag_name}")
+        shadow_root = self.driver.execute_script(
+            "return arguments[0].shadowRoot", shadow_parent)
+        print(f"idd: {shadow_root}")
+        return shadow_root
+
+    def get_shadow_element_from(self, from_object, selector):
+        try:
+            shadow_parent = from_object.find_element_by_tag_name(
+                selector)
+            print(shadow_parent.tag_name)
+        except NoSuchElementException:
+            print("NoSuchElementException")
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+
+        shadow_root = self.driver.execute_script(
+            "return arguments[0].shadowRoot", shadow_parent)
+        print(shadow_root)
+
+        return shadow_root
+
+    def find_shadow_root(self, first_parent, *other_parents):
+        current_root = self.wait_show_shadow_element(first_parent)
+        print("elements", current_root.find_element_by_tag_name("settings-main"))
+
+        for parent_node in other_parents:
+            current_root = self.get_shadow_element_from(
+                current_root, parent_node)
+        print(f"current root: {current_root}")
+
+        return current_root
+
+    def wait_hide_element(self, selector, wait):
         try:
             wait = WebDriverWait(self.driver, wait)
             element = wait.until(EC.invisibility_of_element_located(
@@ -55,38 +91,38 @@ class SeleniumHelper:
         except:
             return None
 
-    def getElementFrom(self, fromObject, selector):
+    def get_element_from(self, from_object, selector):
         try:
-            return fromObject.find_element_by_xpath(selector)
+            return from_object.find_element_by_xpath(selector)
         except NoSuchElementException:
             return None
 
-    def getElementsFrom(self, fromObject, selector):
+    def get_elements_from(self, from_object, selector):
         try:
-            return fromObject.find_elements_by_xpath(selector)
+            return from_object.find_elements_by_xpath(selector)
         except NoSuchElementException:
             return None
 
-    def getElement(self, selector):
-        return self.getElementFrom(self.driver, selector)
+    def get_element(self, selector):
+        return self.get_element_from(self.driver, selector)
 
-    def getElements(self, selector):
-        return self.getElementsFrom(self.driver, selector)
+    def get_elements(self, selector):
+        return self.get_elements_from(self.driver, selector)
 
-    def getElementFromValue(self, fromObject, selector):
-        element = self.getElementFrom(fromObject, selector)
+    def get_element_from_value(self, fromObject, selector):
+        element = self.get_element_from(fromObject, selector)
         if element:
             return element.text
         return None
 
-    def getElementValue(self, selector):
-        element = self.getElement(selector)
+    def get_element_value(self, selector):
+        element = self.get_element(selector)
         if element:
             return element.text
         return None
 
-    def getElementFromAttribute(self, fromObject, selector, attribute):
-        element = self.getElementFrom(fromObject, selector)
+    def get_element_from_attribute(self, fromObject, selector, attribute):
+        element = self.get_element_from(fromObject, selector)
         if element:
             return element.get_attribute(attribute)
         return None
@@ -103,7 +139,7 @@ class SeleniumHelper:
         return node.find_elements_by_xpath('./*')
 
     def select_and_write(self, field, value):
-        fieldObject = self.getElement(field)
+        fieldObject = self.get_element(field)
         fieldObject.send_keys(value)
         return fieldObject
 
@@ -118,7 +154,7 @@ class SeleniumHelper:
         return fieldObject
 
     def click_selector(self, selector):
-        element = self.getElement(selector)
+        element = self.get_element(selector)
         actions = webdriver.ActionChains(self.driver)
         actions.move_to_element(element)
         actions.click(element)

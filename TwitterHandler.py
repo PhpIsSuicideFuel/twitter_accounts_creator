@@ -46,28 +46,33 @@ class TwitterHandler(SeleniumHelper):
             return self.submit_phone_details()
 
         self.select_and_write(dom_constants.DESKTOP_FIELD_SIGN_UP_PHONE,
-                              '+' + number)  # get phone number
+                              '+' + number)  # write phone number
         self.wait_and_click(dom_constants.DESKTOP_BUTTON_NEXT)
         self.wait_and_click(dom_constants.DESKTOP_BUTTON_NEXT)
         self.wait_and_click(dom_constants.DESKTOP_BUTTON_SIGN_UP)
         self.wait_and_click(dom_constants.DESKTOP_BUTTON_OK)
 
+        # if the number expires None will be returned
         code = self.pva.get_sms_message(number)
         if code is None:
             return self.submit_phone_details()
 
         self.select_and_write(dom_constants.DESKTOP_FIELD_SIGN_UP_CODE,
-                              code)  # get verification code
+                              code)  # write verification code
         self.wait_and_click(dom_constants.DESKTOP_BUTTON_NEXT)
         return number
 
     def clear_browser_data(self):
         self.load_page(dom_constants.CLEAR_BROWSER_DATA_URL)
-        advanced_button = self.wait_show_element(
-            dom_constants.DESKTOP_BUTTON_ADVANCED)
-        print(advanced_button)
-        attr = self.get_element_attribute(
-            advanced_button, "aria-selected")
-        print(attr)
-        if attr == "false":
-            self.click(advanced_button)
+        print("in clear")
+        print(self.find_shadow_root('settings-ui', "settings-main", "settings-basic-page",
+                                    "settings-privacy-page", "settings-clear-browsing-data-dialog", "cr-tabs"))
+        # "settings-ui", "settings-main", "settings-basic-page", "settings-section", "settings-privacy-page", "settings-clear-browsing-data-dialog", "cr-tabs"
+        # advanced_button = self.wait_show_element(
+        #     dom_constants.DESKTOP_BUTTON_ADVANCED)
+        # print(advanced_button)
+        # attr = self.get_element_attribute(
+        #     advanced_button, "aria-selected")
+        # print(attr)
+        # if attr == "false":
+        #     self.click(advanced_button)
