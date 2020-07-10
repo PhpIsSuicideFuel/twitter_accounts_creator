@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.select import Select
 import sys
 
 
@@ -54,6 +55,9 @@ class SeleniumHelper:
             "return arguments[0].shadowRoot", shadow_parent)
         print(f"idd: {shadow_root}")
         return shadow_root
+
+    def get_shadow_element(self, from_object):
+        return self.driver.execute_script("return arguments[0].shadowRoot", from_object)
 
     def get_shadow_element_from(self, from_object, selector):
         try:
@@ -191,6 +195,15 @@ class SeleniumHelper:
             substr = arr1[1]
             exit = substr[:count]
         return exit
+
+    def create_selector(self, element):
+        return Select(element)
+
+    def select_by_text(self, text, element: Select):
+        try:
+            element.select_by_visible_text(text)
+        except NoSuchElementException:
+            print("NoSuchElementException")
 
     def close(self):
         self.driver.close()

@@ -12,4 +12,3 @@ DESKTOP_BUTTON_SKIP_FOR_NOW = """//div[@data-focusable='true' and @tabindex='0']
 DESKTOP_BUTTON_NEXT = """//div[@data-focusable='true' and @tabindex='0']/div/span/span[text()='Next']//ancestor::div[2]"""
 DESKTOP_BUTTON_OK = """//div[@data-focusable='true' and @tabindex='0']/div/span/span[text()='OK']//ancestor::div[2]"""
 DESKTOP_BUTTON_SIGN_UP = """//div[@role='button' and @data-focusable='true' and @tabindex='0']/div/span/span[text()='Sign up']"""
-DESKTOP_BUTTON_ADVANCED = """//div[@class='tab' and @role='tab' and text()='Advanced']"""
