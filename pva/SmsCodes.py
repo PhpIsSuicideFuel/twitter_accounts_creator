@@ -56,12 +56,10 @@ class SmsCodes(PvaApi):
 
         payload = {'key': self.api_key,
                    'sid': stored_number.security_id, 'number': number}
-        print(payload)
 
         while not stored_number.is_expired():
             response = self.send_request(
                 self.base_url + "GetSMSCode", payload)
-            print(response)
             if response["Status"] == "Success":
                 if response["SMS"] == "Message not received yet":
                     continue

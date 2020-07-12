@@ -7,12 +7,15 @@ from sys import path
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
+from datetime import datetime
 from TwitterHandler import TwitterHandler
 from pva.PvaApi import PvaApi
 import constants.javascript_constants as javascript_constants
 
 WEBDRIVER_PATH = os.getcwd() + "\\webdriver\\chromedriver.exe"
 PROXY_FILE_PATH = None
+ACCOUNTS_FILE_PATH = os.getcwd() + "accounts" + \
+    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 AVAILABLE_PVA_SERVICES = {}
 
@@ -21,9 +24,7 @@ class TwitterCreator:
     pva_services = []
 
     def __init__(self):
-        browser = get_web_driver()
         self.pva = self.get_cheapest_service()
-        self.twitter = TwitterHandler(browser, self.pva)
 
     @classmethod
     def read_configuration(cls, config_file_name="config.json"):
@@ -46,6 +47,9 @@ class TwitterCreator:
             if "proxy_file" in config_data:
                 global PROXY_FILE_PATH
                 PROXY_FILE_PATH = os.getcwd() + config_data.get("proxy_file")
+            if "accounts_file" in config_data:
+                global ACCOUNTS_FILE_PATH
+                ACCOUNTS_FILE_PATH = os.getcwd() + config_data.get("accounts_file")
 
     def get_cheapest_service(self):
         pva_services_with_balance = [
@@ -57,17 +61,20 @@ class TwitterCreator:
         proxies = []
 
         if PROXY_FILE_PATH is not None:
-            with open(PROXY_FILE_PATH) as proxy_file:
+            with open(PROXY_FILE_PATH, mode='r') as proxy_file:
                 proxies = [line.strip('\n') for line in proxy_file]
 
         proxies = iter(proxies)
         self.twitter = TwitterHandler(
             get_web_driver(next(proxies, None)), self.pva)
 
-        while True:
-            account = self.twitter.create_account()
-
-            self.twitter.driver = get_web_driver(next(proxies, None))
+        with open(ACCOUNTS_FILE_PATH, mode='a') as accounts_file:
+            while True:
+                proxy = next(proxies, None)
+                account = self.twitter.create_account()
+                accounts_file.write(
+                    f"{account.get('username')} : {account.get('password')} | {proxy}")
+                self.twitter.driver = get_web_driver(proxy)
 
         print(account)
         print('hoi')
@@ -131,10 +138,7 @@ def main(argv):
     TwitterCreator.read_configuration()
 
     creator = TwitterCreator()
-
     creator.start()
-    # TwitterCreator.pva_services[0].add_number()
-    # print(TwitterCreator.pva_services[0].g())
 
     print('Process ended')
 
