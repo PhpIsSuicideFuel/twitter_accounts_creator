@@ -13,33 +13,33 @@ class TwitterHandler(SeleniumHelper):
 
     def create_account(self) -> dict:
 
-        # account = {'username': generate_username(),
-        #            'password': generate_password()}
+        account = {'username': generate_username(),
+                   'password': generate_password()}
 
-        # self.load_page(dom_constants.DESKTOP_URL_CREATE)
-        # self.wait_and_write(dom_constants.DESKTOP_FIELD_SIGN_UP_NAME,
-        #                     account['username'])
+        self.load_page(dom_constants.DESKTOP_URL_CREATE)
+        self.wait_and_write(dom_constants.DESKTOP_FIELD_SIGN_UP_NAME,
+                            account['username'])
 
-        # number = self.submit_phone_details()
-        # account['number'] = number
+        number = self.submit_phone_details()
+        account['number'] = number
 
-        # self.wait_and_write(dom_constants.DESKTOP_FIELD_SIGN_UP_PASSWORD,
-        #                     account['password'])
-        # self.wait_and_click(dom_constants.DESKTOP_BUTTON_NEXT)
-        # # code for uploading profile pic goes here
-        # self.wait_and_click(dom_constants.DESKTOP_BUTTON_SKIP_FOR_NOW)
-        # # code for entering bio goes here
-        # self.wait_and_click(dom_constants.DESKTOP_BUTTON_SKIP_FOR_NOW)
-        # # "What are you interested in?" page
-        # self.wait_and_click(dom_constants.DESKTOP_BUTTON_SKIP_FOR_NOW)
-        # # "Suggestions for you to follow" page
-        # self.wait_and_click(dom_constants.DESKTOP_BUTTON_NEXT)
-        # # "Turn on notifications" page
-        # self.wait_and_click(dom_constants.DESKTOP_BUTTON_SKIP_FOR_NOW)
-        # # you're in twitter:)
+        self.wait_and_write(dom_constants.DESKTOP_FIELD_SIGN_UP_PASSWORD,
+                            account['password'])
+        self.wait_and_click(dom_constants.DESKTOP_BUTTON_NEXT)
+        # code for uploading profile pic goes here
+        self.wait_and_click(dom_constants.DESKTOP_BUTTON_SKIP_FOR_NOW)
+        # code for entering bio goes here
+        self.wait_and_click(dom_constants.DESKTOP_BUTTON_SKIP_FOR_NOW)
+        # "What are you interested in?" page
+        self.wait_and_click(dom_constants.DESKTOP_BUTTON_SKIP_FOR_NOW)
+        # "Suggestions for you to follow" page
+        self.wait_and_click(dom_constants.DESKTOP_BUTTON_NEXT)
+        # "Turn on notifications" page
+        self.wait_and_click(dom_constants.DESKTOP_BUTTON_SKIP_FOR_NOW)
+        # you're in twitter:)
 
         self.clear_browser_data()  # clearing browser data after account creation
-        # return account
+        return account
 
     def submit_phone_details(self) -> str:
         number = self.pva.request_phone_number()

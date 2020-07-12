@@ -1,6 +1,5 @@
 import sys
 import os
-import random
 import json
 import importlib
 import time
@@ -13,19 +12,18 @@ from pva.PvaApi import PvaApi
 import constants.javascript_constants as javascript_constants
 
 WEBDRIVER_PATH = os.getcwd() + "\\webdriver\\chromedriver.exe"
+PROXY_FILE_PATH = None
 
-AVAILABLE_PVA_SERVICES = {
-}
+AVAILABLE_PVA_SERVICES = {}
 
 
 class TwitterCreator:
     pva_services = []
 
     def __init__(self):
-        browser = self.get_web_driver()
-        browser.delete_all_cookies()
-        pva = self.get_cheapest_service()
-        self.twitter = TwitterHandler(browser, pva)
+        browser = get_web_driver()
+        self.pva = self.get_cheapest_service()
+        self.twitter = TwitterHandler(browser, self.pva)
 
     @classmethod
     def read_configuration(cls, config_file_name="config.json"):
@@ -45,6 +43,9 @@ class TwitterCreator:
             if "webdriver_path" in config_data:
                 global WEBDRIVER_PATH
                 WEBDRIVER_PATH = os.getcwd() + config_data.get("webdriver_path")
+            if "proxy_file" in config_data:
+                global PROXY_FILE_PATH
+                PROXY_FILE_PATH = os.getcwd() + config_data.get("proxy_file")
 
     def get_cheapest_service(self):
         pva_services_with_balance = [
@@ -53,50 +54,54 @@ class TwitterCreator:
                    key=lambda service: service.service_price)
 
     def start(self):
-        account = self.twitter.create_account()
-        # TODO clean user data after account creation
+        proxies = []
+
+        if PROXY_FILE_PATH is not None:
+            with open(PROXY_FILE_PATH) as proxy_file:
+                proxies = [line.strip('\n') for line in proxy_file]
+
+        proxies = iter(proxies)
+        self.twitter = TwitterHandler(
+            get_web_driver(next(proxies, None)), self.pva)
+
+        while True:
+            account = self.twitter.create_account()
+
+            self.twitter.driver = get_web_driver(next(proxies, None))
+
         print(account)
         print('hoi')
-        # try:
-        #     rows = simplejson.loads(open(inputFile).read())
-        #     numElements = len(rows)
-        # except:
-        #     numElements = 0
-        # if numElements > 0:
-        #     if toRow == -1:
-        #         toRow = numElements
-        #     else:
-        #         if toRow > numElements:
-        #             toRow = numElements
-        #     fromRow -= 1
-        #     if fromRow < numElements:
-        #         self.driver = self.getWebdriver(driverType)
-        #         for numRow in range(fromRow, toRow):
-        #             row = rows[numRow]
-        #             print('Processing row: ' + str(numRow))
-        #             for callback in callbacks:
-        #                 callback(row)
-        #             print('Processed.')
-        #         self.close()
-        #     else:
-        #         print('Index out of bounds')
-        # else:
-        #     print('Data could not be extracted')
 
-    def get_web_driver(self):
-        chrome_options = Options()
-        # Note the port numbers should match.
-        chrome_options.add_experimental_option(
-            "debuggerAddress", "127.0.0.1:9222")
-        try:
-            driver = webdriver.Chrome(WEBDRIVER_PATH, options=chrome_options)
-        except WebDriverException as e:
-            raise SystemExit(e)
 
-        for script in javascript_constants.SCRIPTS:
-            driver.execute_cdp_cmd(
-                "Page.addScriptToEvaluateOnNewDocument", {"source": script})
-        return driver
+def get_web_driver(proxy=None):
+    launch_chrome()
+    chrome_options = Options()
+    # note that the port numbers should match
+    chrome_options.add_experimental_option(
+        "debuggerAddress", "127.0.0.1:9222")
+
+    if proxy is not None:
+        chrome_options.add_argument(f"--proxy-server={proxy}")
+
+    try:
+        driver = webdriver.Chrome(WEBDRIVER_PATH, options=chrome_options)
+    except WebDriverException as e:
+        raise SystemExit(e)
+
+    for script in javascript_constants.SCRIPTS:
+        driver.execute_cdp_cmd(
+            "Page.addScriptToEvaluateOnNewDocument", {"source": script})
+
+    driver.delete_all_cookies()
+
+    return driver
+
+
+def launch_chrome(debug_port=9222):
+    os.system('taskkill /F /im chrome.exe')
+    os.system(
+        f'start chrome --remote-debugging-port={debug_port} --user-data-dir=remote-profile --no-sandbox')
+    print("chrome started")
 
 
 def load_pva_modules():
@@ -124,10 +129,6 @@ def main(argv):
     load_pva_modules()
     print(AVAILABLE_PVA_SERVICES)
     TwitterCreator.read_configuration()
-    os.system('taskkill /F /im chrome.exe')
-    os.system(
-        'start chrome --remote-debugging-port=9222 --user-data-dir=remote-profile --no-sandbox')
-    print("chrome started")
 
     creator = TwitterCreator()
 
@@ -135,7 +136,6 @@ def main(argv):
     # TwitterCreator.pva_services[0].add_number()
     # print(TwitterCreator.pva_services[0].g())
 
-    # creator.start()
     print('Process ended')
 
 
