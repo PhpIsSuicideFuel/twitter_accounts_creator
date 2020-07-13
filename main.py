@@ -14,8 +14,8 @@ import constants.javascript_constants as javascript_constants
 
 WEBDRIVER_PATH = os.getcwd() + "\\webdriver\\chromedriver.exe"
 PROXY_FILE_PATH = None
-ACCOUNTS_FILE_PATH = os.getcwd() + "accounts" + \
-    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+ACCOUNTS_FILE_PATH = os.getcwd() + "\\accounts" + \
+    datetime.now().strftime("--%Y-%m-%d--%H-%M-%S") + ".txt"
 
 AVAILABLE_PVA_SERVICES = {}
 
@@ -65,30 +65,25 @@ class TwitterCreator:
                 proxies = [line.strip('\n') for line in proxy_file]
 
         proxies = iter(proxies)
+        proxy = next(proxies, None)
         self.twitter = TwitterHandler(
-            get_web_driver(next(proxies, None)), self.pva)
+            get_web_driver(proxy), self.pva)
 
         with open(ACCOUNTS_FILE_PATH, mode='a') as accounts_file:
             while True:
-                proxy = next(proxies, None)
                 account = self.twitter.create_account()
                 accounts_file.write(
-                    f"{account.get('username')} : {account.get('password')} | {proxy}")
+                    f"{account.get('username')} : {account.get('password')} | {proxy}\n")
+                proxy = next(proxies, None)
                 self.twitter.driver = get_web_driver(proxy)
-
-        print(account)
-        print('hoi')
 
 
 def get_web_driver(proxy=None):
-    launch_chrome()
+    launch_chrome(proxy=proxy)
     chrome_options = Options()
     # note that the port numbers should match
     chrome_options.add_experimental_option(
         "debuggerAddress", "127.0.0.1:9222")
-
-    if proxy is not None:
-        chrome_options.add_argument(f"--proxy-server={proxy}")
 
     try:
         driver = webdriver.Chrome(WEBDRIVER_PATH, options=chrome_options)
@@ -104,10 +99,14 @@ def get_web_driver(proxy=None):
     return driver
 
 
-def launch_chrome(debug_port=9222):
-    os.system('taskkill /F /im chrome.exe')
-    os.system(
-        f'start chrome --remote-debugging-port={debug_port} --user-data-dir=remote-profile --no-sandbox')
+def launch_chrome(debug_port=9222, proxy=None):
+    os.system("taskkill /F /im chrome.exe")
+    chrome_string = f"start chrome --remote-debugging-port={debug_port} --user-data-dir=remote-profile --no-sandbox"
+
+    if proxy is not None:
+        chrome_string = chrome_string + f" --proxy-server={proxy}"
+
+    os.system(chrome_string)
     print("chrome started")
 
 
@@ -134,13 +133,12 @@ def load_pva_modules():
 
 def main(argv):
     load_pva_modules()
-    print(AVAILABLE_PVA_SERVICES)
     TwitterCreator.read_configuration()
 
     creator = TwitterCreator()
     creator.start()
 
-    print('Process ended')
+    print("Process ended")
 
 
 if __name__ == "__main__":

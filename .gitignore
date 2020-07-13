@@ -2,3 +2,5 @@ chromedriver.exe
 remote-profile
 __pycache__
 config.json
+proxy.txt
+.vscode/settings.json
