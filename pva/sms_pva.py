@@ -1,5 +1,5 @@
 import time
-from pva.PvaApi import PvaApi
+from pva.pva_api import PvaApi
 
 
 # for communication with http://smspva.com/ service

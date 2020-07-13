@@ -8,8 +8,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
 from datetime import datetime
-from TwitterHandler import TwitterHandler
-from pva.PvaApi import PvaApi
+from twitter_handler import TwitterHandler
+from pva.pva_api import PvaApi
 import constants.javascript_constants as javascript_constants
 
 WEBDRIVER_PATH = os.getcwd() + "\\webdriver\\chromedriver.exe"
@@ -114,7 +114,7 @@ def load_pva_modules():
     module_path = os.getcwd() + "\\pva"
     path.append(module_path)
     for module_name in os.listdir(module_path):
-        if module_name != "PvaApi.py" and module_name.endswith(".py"):
+        if module_name != "pva_api.py" and module_name.endswith(".py"):
             module_name = module_name[:-3]
 
             try:
@@ -123,12 +123,14 @@ def load_pva_modules():
                 print("Couldn't import", module_name)
                 continue
 
-            pva_class = getattr(module, module_name)
+            attribute_name = ''.join([word.capitalize()
+                                      for word in module_name.split('_')])
+            pva_class = getattr(module, attribute_name)
             if isinstance(pva_class, type) and issubclass(pva_class, PvaApi):
                 global AVAILABLE_PVA_SERVICES
-                AVAILABLE_PVA_SERVICES.update({module_name: pva_class})
+                AVAILABLE_PVA_SERVICES.update({attribute_name: pva_class})
             else:
-                print(f"Pva module {module_name} has to derive from PvaApi")
+                print(f"Pva module {attribute_name} has to derive from PvaApi")
 
 
 def main(argv):

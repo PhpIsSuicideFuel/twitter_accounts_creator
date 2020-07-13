@@ -1,8 +1,8 @@
 import constants.dom_constants as dom_constants
-from SeleniumHelper import SeleniumHelper
+from selenium_helper import SeleniumHelper
 from selenium.webdriver.remote.webelement import WebElement
-from pva.PvaApi import PvaApi
-from CredentialHelper import generate_password, generate_username
+from pva.pva_api import PvaApi
+from credential_helper import generate_password, generate_username
 
 
 class TwitterHandler(SeleniumHelper):
