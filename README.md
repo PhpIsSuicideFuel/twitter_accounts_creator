@@ -29,14 +29,14 @@ Example:
 }
 ```
 
-**"pva_services"** - a list of modules of pva services you intend to use to verify your accounts.
-**"webdriver_path"** - relative path to your chromedriver, default is \webdriver\chromedriver.exe.
-**"proxy_file"** - relative path to a text file filled with proxies you want to use, if its not specified no proxies will be used.
+- **"pva_services"** - a list of modules of pva services you intend to use to verify your accounts.
+- **"webdriver_path"** - relative path to your chromedriver, default is \webdriver\chromedriver.exe.
+- **"proxy_file"** - relative path to a text file filled with proxies you want to use, if its not specified no proxies will be used.
 
 ### Proxy file format
 All of the proxies have to be formatted correctly and each proxy must be on a new line
 ```
-**proxy-scheme**://**proxy-ip**:**proxy-port**
+proxy-scheme://proxy-ip:proxy-port
 ```
 
 ### Account information storing
