@@ -6,7 +6,7 @@ Download chromedriver (here)[https://chromedriver.chromium.org/downloads].
 ### Configuration file
 Before using you have to setup a configuration file "config.json".
 Example:
-'''
+```
 {
     "pva_services": [
         {
@@ -27,7 +27,7 @@ Example:
     "webdriver_path": "\\webdriver\\chromedriver.exe",
     "proxy_file": "\\proxy.txt"
 }
-'''
+```
 
 **"pva_services"** - a list of modules of pva services you intend to use to verify your accounts.
 **"webdriver_path"** - relative path to your chromedriver, default is \webdriver\chromedriver.exe.
@@ -35,9 +35,9 @@ Example:
 
 ### Proxy file format
 All of the proxies have to be formatted correctly and each proxy must be on a new line
-'''
+```
 **proxy-scheme**://**proxy-ip**:**proxy-port**
-'''
+```
 
 ### Account information storing
 All created accounts will be stored in a .txt file named "accounts--*current-datetime*"
