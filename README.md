@@ -2,7 +2,7 @@
 A python program written using selenium to automate twitter accounts creation with phone verification.
 
 ## How to use
-Download chromedriver (here)[https://chromedriver.chromium.org/downloads].
+Download chromedriver here: https://chromedriver.chromium.org/downloads
 ### Configuration file
 Before using you have to setup a configuration file "config.json".
 Example:
